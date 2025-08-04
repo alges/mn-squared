@@ -1,26 +1,54 @@
+from multinull_jsd.null_structures.null_hypothesis import NullHypothesis
 from multinull_jsd.cdf_backends import CDFBackend
 from multinull_jsd.types import FloatArray
+from typing import Iterator
 
 
 class IndexedHypotheses:
+    """
+    Container that assigns stable integer indices to ``NullHypothesis`` instances and exposes list-like access.
 
+    The data structure ensures **index continuity**: deleted indices are recycled only when the container is empty,
+    mimicking the behaviour expected by users in statistical software.
+    """
     def __init__(self, cdf_backend: CDFBackend) -> None:
-        pass
+        """
+        Parameters
+        ----------
+        cdf_backend
+            Back-end shared by all contained null hypotheses.
+        """
+        raise NotImplementedError
 
     def add_null(self, prob_vector: FloatArray, target_alpha: float) -> int:
-        pass
+        """
+        Append a new null and return its index.
 
-    def __getitem__(self, index):
-        pass
+        Parameters
+        ----------
+        prob_vector
+            Probability vector (1-D, non-negative, sums to one).
+        target_alpha
+            Desired significance level in :math:`[0,1]`.
 
-    def __delitem__(self, idx):
-        pass
+        Returns
+        -------
+        int
+            Zero-based index assigned to the new null.
+        """
+        raise NotImplementedError
 
-    def __contains__(self, idx):
-        pass
+    def __getitem__(self, idx) -> NullHypothesis:
+        raise NotImplementedError
 
-    def __iter__(self):
-        pass
+    def __delitem__(self, idx) -> None:
+        raise NotImplementedError
 
-    def __len__(self):
-        pass
+    def __contains__(self, prob_vector: FloatArray) -> bool:
+        raise NotImplementedError
+
+    def __iter__(self) -> Iterator[NullHypothesis]:
+        raise NotImplementedError
+
+    def __len__(self) -> int:
+        raise NotImplementedError
