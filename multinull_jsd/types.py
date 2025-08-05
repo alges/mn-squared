@@ -4,17 +4,16 @@ Utility type aliases and protocols used across *multinull_jsd*.
 The file purposefully contains **no runtime logic** so it can be imported without triggering heavy scientific routines
 during static-typing or documentation builds.
 """
-from typing import Literal, Protocol, runtime_checkable, overload
+from typing import Literal, Protocol, TypeAlias, Final, runtime_checkable, overload, get_args
 
 import numpy.typing as npt
 import numpy as np
 
-
-#: Names understood by :class:`multinull_jsd.cdf_backends.base.CDFBackend`.
-CDFBackendName = Literal["exact", "mc_multinomial", "mc_normal"]
+#: Alias for a NumPy array of ``float64`` with a fixed shape.
+FloatDType: TypeAlias = np.float64
 
 #: Alias for a NumPy array of ``float64`` with *any* shape.
-FloatArray = npt.NDArray[np.float64]
+FloatArray: TypeAlias = npt.NDArray[FloatDType]
 
 
 @runtime_checkable

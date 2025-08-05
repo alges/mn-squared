@@ -12,10 +12,15 @@ Typical usage
 >>> decisions = test.infer_decisions(h)  # Array of decisions (1 or 2 for each null hypothesis, -1 for the alternative)
 """
 from multinull_jsd.null_structures import IndexedHypotheses
-from multinull_jsd.types import CDFBackendName, FloatArray
+from multinull_jsd.cdf_backends import (
+    CDF_BACKEND_FACTORY, MC_CDF_BACKENDS, CDFBackend, ExactCDFBackend, MultinomialMCCDFBackend, NormalMCCDFBackend
+)
+from multinull_jsd._validators import FLOAT_TOL, validate_int_value
+from multinull_jsd.types import FloatArray, FloatDType
 from typing import Optional, Sequence, overload
 
 import numpy.typing as npt
+import numpy as np
 
 
 class MultiNullJSDTest:
@@ -37,14 +42,33 @@ class MultiNullJSDTest:
 
     Raises
     ------
+    TypeError
+        If any of the parameters are of incorrect type.
     ValueError
-        On invalid ``evidence_size``, ``prob_dim``, ``cdf_method``, ``mc_samples``, or ``seed``.
+        If any of the parameters are invalid, such as negative or non-integer values.
     """
 
     def __init__(
-        self, evidence_size: int, prob_dim: int, cdf_method: CDFBackendName = "exact",
-        mc_samples: Optional[int] = None, seed: Optional[int] = None
+        self, evidence_size: int, prob_dim: int, cdf_method: str = "exact", mc_samples: Optional[int] = None,
+        seed: Optional[int] = None
     ) -> None:
+
+        # Parameter validation
+        validate_int_value(name="evidence_size", value=evidence_size, min_value=1)
+        self._k: int = validate_int_value(name="prob_dim", value=prob_dim, min_value=1)
+
+        if cdf_method not in CDF_BACKEND_FACTORY.keys():
+            raise ValueError(f"Invalid CDF method '{cdf_method}'. Must be one of {CDF_BACKEND_FACTORY.keys()}.")
+
+        if cdf_method in MC_CDF_BACKENDS:
+            validate_int_value(name="mc_samples", value=mc_samples, min_value=1)
+            validate_int_value(name="seed", value=seed, min_value=0)
+
+        # Initialization of container for null hypotheses
+        self._nulls: IndexedHypotheses = IndexedHypotheses(
+            cdf_backend=CDF_BACKEND_FACTORY[cdf_method](evidence_size, mc_samples, seed)
+        )
+
         raise NotImplementedError
 
     def add_nulls(self, prob_vector: npt.ArrayLike, target_alpha: float | Sequence[float]) -> None:
@@ -62,6 +86,29 @@ class MultiNullJSDTest:
         ValueError
             Shape mismatch, invalid probability vector, or invalid target significance level.
         """
+
+        # Validation of the probability vector(s)
+        prob_vector = np.asarray(prob_vector, dtype=FloatDType)
+        if prob_vector.ndim == 1:
+            prob_vector = prob_vector[np.newaxis, :]
+        elif prob_vector.ndim != 2:
+            raise ValueError("Probability vector must be 1-D or 2-D (batch of histograms).")
+        if prob_vector.shape[1] != self._k:
+            raise ValueError(f"Probability vector must have {self._k} categories. Got shape {prob_vector.shape}.")
+        if np.any(a=prob_vector < 0):
+            raise ValueError("Probability values must be non-negative.")
+        if not np.all(a=np.isclose(a=np.sum(a=prob_vector, axis=1), b=1.0, atol=FLOAT_TOL)):
+            raise ValueError("Probability vectors must sum to one.")
+
+        # Validation of the target alpha(s)
+        target_alpha_vec: FloatArray = np.atleast_1d(target_alpha).astype(dtype=FloatDType)
+        if target_alpha_vec.ndim != 1:
+            raise ValueError("Target alpha must be a scalar or a 1-D sequence.")
+        if target_alpha_vec.size == 1:
+            target_alpha_vec = np.broadcast_to(array=target_alpha_vec, shape=(prob_vector.shape[0], ))
+        elif target_alpha_vec.shape[0] != prob_vector.shape[0]:
+            raise ValueError("Target alpha vector and probability vector must have the same length.")
+
         raise NotImplementedError
 
     def remove_nulls(self, null_index: int | Sequence[int]) -> None:
@@ -74,7 +121,14 @@ class MultiNullJSDTest:
             Index or sequence of indices of null hypotheses to remove. Must be valid indices of the current nulls. The
             indexing is one-based, i.e., the first null hypothesis has index 1.
         """
-        # TODO: Ensure unique null indexes are considered
+        if isinstance(null_index, int):
+            null_index_set: set[int] = {null_index}
+        try:
+            null_index_set = set(null_index)
+        except TypeError:
+            raise TypeError("null_index must be an integer or a sequence of integers.")
+        for idx in null_index_set:
+            validate_int_value(name="null_index value or element", value=idx, min_value=1, max_value=len(self._nulls))
         raise NotImplementedError
 
     def get_nulls(self) -> IndexedHypotheses:
