@@ -113,7 +113,8 @@ class MultiNullJSDTest:
         """
         Apply the decision rule and return an *integer label array* with the same batch shape as *query*:
 
-        * Decision outputs the index ``k`` when the null hypothesis of index ``k`` is accepted.
+        * Decision outputs the index ``k`` when the null hypothesis of index ``k`` is selected as the least-rejected
+          (accepted).
         * Decision outputs ``-1`` when the alternative hypothesis is chosen (i.e., all nulls are rejected).
 
         Parameters

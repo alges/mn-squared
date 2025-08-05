@@ -29,7 +29,20 @@ class CDFBackend(ABC):
         If ``evidence_size`` is not a positive integer.
     """
     def __init__(self, evidence_size: int) -> None:
-        pass
+        raise NotImplementedError
+
+    @property
+    def evidence_size(self) -> int:
+        """
+        Returns the number of draws :math:`n` in the multinomial model. This is the number of samples in each
+        histogram.
+
+        Returns
+        -------
+        int
+            The number of draws :math:`n`.
+        """
+        raise NotImplementedError
 
     @abstractmethod
     def get_cdf(self, prob_vector: FloatArray) -> CDFCallable:
