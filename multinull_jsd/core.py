@@ -17,7 +17,7 @@ from multinull_jsd._validators import (
     validate_int_value, validate_finite_array, validate_histogram_batch, validate_probability_batch,
     validate_null_indices
 )
-from multinull_jsd.types import FloatArray, IntArray, FloatDType
+from multinull_jsd.types import FloatArray, IntArray, FloatDType, ScalarFloat, ScalarInt
 from typing import Optional, Sequence, overload
 
 import numpy.typing as npt
@@ -74,7 +74,7 @@ class MultiNullJSDTest:
 
         raise NotImplementedError
 
-    def add_nulls(self, prob_vector: npt.ArrayLike, target_alpha: float | Sequence[float]) -> None:
+    def add_nulls(self, prob_vector: npt.ArrayLike, target_alpha: ScalarFloat | Sequence[ScalarFloat]) -> None:
         """
         Add one or multiple null hypotheses.
 
@@ -84,8 +84,9 @@ class MultiNullJSDTest:
             Probability vector(s) for the null hypothesis or hypotheses. Can be a 1-D array of shape ``(k,)`` or a 2-D
             array of shape ``(m, k)``, where ``m`` is the number of nulls and ``k`` is the number of categories.
         target_alpha
-            Desired significance level(s) for the null hypothesis or hypotheses. Can be a scalar float or a 1-D array of
-            floats of length ``m``. If a scalar is provided, the same significance level is applied to all new nulls.
+            Desired significance level(s) for the null hypothesis or hypotheses. Can be a scalar float or a 1-D array
+            of floats of length ``m``. If a scalar is provided, the same significance level is applied to all new
+            nulls.
 
         Raises
         ------
@@ -112,7 +113,7 @@ class MultiNullJSDTest:
 
         raise NotImplementedError
 
-    def remove_nulls(self, null_index: int | Sequence[int]) -> None:
+    def remove_nulls(self, null_index: ScalarInt | Sequence[ScalarInt]) -> None:
         """
         Remove one or multiple null hypotheses.
 
@@ -122,7 +123,7 @@ class MultiNullJSDTest:
             Index or sequence of indices of null hypotheses to remove. Must be valid indices of the current nulls. The
             indexing is one-based, i.e., the first null hypothesis has index 1.
         """
-        null_index_tuple: tuple[int, ...] = validate_null_indices(
+        null_index_tuple: tuple[ScalarInt, ...] = validate_null_indices(
             name="null_index", value=null_index, n_nulls=len(self._nulls)
         )
         raise NotImplementedError
@@ -138,7 +139,7 @@ class MultiNullJSDTest:
         """
         raise NotImplementedError
 
-    def infer_p_values(self, hist_query: npt.ArrayLike) -> npt.ArrayLike:
+    def infer_p_values(self, hist_query: npt.ArrayLike) -> FloatArray:
         """
         Compute per-null p-values for a histogram or batch of histograms.
 
@@ -152,7 +153,7 @@ class MultiNullJSDTest:
 
         Returns
         -------
-        npt.ArrayLike
+        FloatArray
             Array of p-values for each null hypothesis. If the input is a single histogram, the output will have shape
             ``(L,)``, where ``L`` is the number of null hypotheses. Each entry corresponds to the p-value for the
             respective null hypothesis. If the input is a batch, the output will have shape ``(m,L)``.
@@ -162,7 +163,7 @@ class MultiNullJSDTest:
         )
         raise NotImplementedError
 
-    def infer_decisions(self, hist_query: npt.ArrayLike) -> int | npt.NDArray[int]:
+    def infer_decisions(self, hist_query: npt.ArrayLike) -> ScalarInt | IntArray:
         """
         Apply the decision rule and return an *integer label array* with the same batch shape as *query*:
 
@@ -180,7 +181,7 @@ class MultiNullJSDTest:
 
         Returns
         -------
-        int | npt.NDArray[int]
+        ScalarInt | IntArray
             Array of decisions with the same batch shape as *query*. Each entry corresponds to the decision for the
             respective histogram in the batch. If the input is a single histogram, the output will be a scalar integer.
             If the input is a batch, the output will be a 1-D array of integers.
@@ -191,11 +192,11 @@ class MultiNullJSDTest:
         raise NotImplementedError
 
     @overload
-    def get_alpha(self, null_index: int) -> float: ...
+    def get_alpha(self, null_index: ScalarInt) -> ScalarFloat: ...
     @overload
-    def get_alpha(self, null_index: Sequence[int]) -> FloatArray: ...
+    def get_alpha(self, null_index: Sequence[ScalarInt]) -> FloatArray: ...
 
-    def get_alpha(self, null_index: int | Sequence[int]) -> float | FloatArray:
+    def get_alpha(self, null_index: ScalarInt | Sequence[ScalarInt]) -> ScalarFloat | FloatArray:
         """
         Return the actual significance level (Type-I error probability) for a null hypothesis or a list of hypotheses.
 
@@ -207,17 +208,17 @@ class MultiNullJSDTest:
 
         Returns
         -------
-        float | Sequence[float]
+        ScalarFloat | Sequence[ScalarFloat]
             The actual significance level for the specified null hypothesis or a list of significance levels for each
             specified null hypothesis. If a single index is provided, a scalar float is returned; if a sequence of
             indices is provided, a 1-D array of floats is returned.
         """
-        null_indices: tuple[int, ...] = validate_null_indices(
+        null_indices: tuple[ScalarInt, ...] = validate_null_indices(
             name="null_index", value=null_index, n_nulls=len(self._nulls)
         )
         raise NotImplementedError
 
-    def get_beta(self, prob_query: npt.ArrayLike) -> float | FloatArray:
+    def get_beta(self, prob_query: npt.ArrayLike) -> ScalarFloat | FloatArray:
         """
         Get the maximum Type-II error probability (:math:`\\beta`) over all null hypotheses for a given probability
         vector
@@ -230,21 +231,21 @@ class MultiNullJSDTest:
 
         Returns
         -------
-        float | FloatArray
+        ScalarFloat | FloatArray
             Estimated maximum Type-II error probability over all null hypotheses. If the input is a single histogram,
             a scalar float is returned; if the input is a batch, a 1-D array of floats is returned.
         """
         query_array: FloatArray = validate_probability_batch(name="prob_query", value=prob_query, n_categories=self._k)
         raise NotImplementedError
 
-    def get_fwer(self) -> float:
+    def get_fwer(self) -> ScalarFloat:
         """
         Returns the actual Family-Wise Error Rate (FWER) of the Multi-Null JSd test, i.e., the probability of making at
         least one Type-I error when any of the null hypotheses is true.
 
         Returns
         -------
-        float
+        ScalarFloat
             The actual FWER of the Multi-Null JSd test.
         """
         raise NotImplementedError

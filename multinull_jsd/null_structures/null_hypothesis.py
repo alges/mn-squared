@@ -11,7 +11,7 @@ The heavy mathematical lifting lives in the CDF backend; this module focuses on 
 clean comparison API (``__eq__``).
 """
 from multinull_jsd.cdf_backends import CDFBackend
-from multinull_jsd.types import FloatArray
+from multinull_jsd.types import FloatArray, ScalarFloat
 
 from typing import Any
 
@@ -59,7 +59,7 @@ class NullHypothesis:
         """
         raise NotImplementedError
 
-    def get_jsd_threshold(self) -> float:
+    def get_jsd_threshold(self) -> ScalarFloat:
         """
         Return the critical JSd value :math:`\\tau` such that :math:`\\mathrm{CDF}(\\tau^-) \\geq 1-\\alpha`.
 

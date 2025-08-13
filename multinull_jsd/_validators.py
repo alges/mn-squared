@@ -3,7 +3,7 @@
 side-effect-free checks** so that importing it never triggers heavy numerical work (NumPy is imported lazily and only
 for datatype inspection).
 """
-from multinull_jsd.types import FloatArray, FloatDType, IntArray, IntDType
+from multinull_jsd.types import FloatArray, FloatDType, IntArray, IntDType, ScalarInt
 from typing import Any, Optional
 
 import numpy.typing as npt
@@ -203,7 +203,7 @@ def validate_histogram_batch(name: str, value: Any, n_categories: int, histogram
         raise ValueError(f"{name} must contain histograms with exactly {histogram_size} samples in each row.")
     return int_array
 
-def validate_null_indices(name: str, value: Any, n_nulls: int) -> tuple[int, ...]:
+def validate_null_indices(name: str, value: Any, n_nulls: int) -> tuple[ScalarInt, ...]:
     """
     Check that the given value is a sequence of integers representing null indices.
 
@@ -225,7 +225,7 @@ def validate_null_indices(name: str, value: Any, n_nulls: int) -> tuple[int, ...
 
     Returns
     -------
-    tuple[int]
+    tuple[ScalarInt, ...]
         A tuple of unique, validated indices.
     """
     n_nulls = validate_int_value(name="n_nulls", value=n_nulls, min_value=0)

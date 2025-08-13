@@ -21,6 +21,12 @@ FloatArray: TypeAlias = npt.NDArray[FloatDType]
 #: Alias for a NumPy array of ``int64`` with *any* shape.
 IntArray: TypeAlias = npt.NDArray[IntDType]
 
+#: Alias for a scalar that can be either a Python ``float`` or a NumPy floating-point number.
+ScalarFloat: TypeAlias = float | np.floating
+
+#: Alias for a scalar that can be either a Python ``int`` or a NumPy integer.
+ScalarInt: TypeAlias = int | np.integer
+
 
 @runtime_checkable
 class CDFCallable(Protocol):
@@ -38,7 +44,9 @@ class CDFCallable(Protocol):
     * The protocol can be checked in runtime, so you can use ``isinstance(obj,CDFCallable)``.
     """
     @overload
-    def __call__(self, tau: float) -> float: ...
+    def __call__(self, tau: ScalarFloat) -> ScalarFloat: ...
     @overload
     def __call__(self, tau: npt.ArrayLike) -> FloatArray: ...
-    def __call__(self, tau: float | npt.ArrayLike) -> float | FloatArray: ...
+    def __call__(self, tau: ScalarFloat | npt.ArrayLike) -> ScalarFloat | FloatArray: ...
+
+__all__ = ["FloatDType", "IntDType", "FloatArray", "IntArray", "ScalarFloat", "ScalarInt", "CDFCallable"]

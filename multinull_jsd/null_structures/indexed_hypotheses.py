@@ -5,7 +5,7 @@ high-level logic inside the core package.
 """
 from multinull_jsd.null_structures.null_hypothesis import NullHypothesis
 from multinull_jsd.cdf_backends import CDFBackend
-from multinull_jsd.types import FloatArray
+from multinull_jsd.types import FloatArray, ScalarInt
 from typing import Iterator
 
 
@@ -24,7 +24,7 @@ class IndexedHypotheses:
     def __init__(self, cdf_backend: CDFBackend) -> None:
         raise NotImplementedError
 
-    def add_null(self, prob_vector: FloatArray, target_alpha: float) -> int:
+    def add_null(self, prob_vector: FloatArray, target_alpha: float) -> ScalarInt:
         """
         Append a new null and return its index.
 
@@ -37,7 +37,7 @@ class IndexedHypotheses:
 
         Returns
         -------
-        int
+        ScalarInt
             One-based index assigned to the new null.
         """
         raise NotImplementedError
