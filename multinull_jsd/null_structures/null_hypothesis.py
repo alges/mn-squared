@@ -10,8 +10,6 @@ Responsibilities
 This module focuses on input validation, bookkeeping and clean method signatures. Heavy numerical work belongs in CDF
 backends.
 """
-import numpy as np
-
 from multinull_jsd.cdf_backends import CDFBackend
 from multinull_jsd._validators import validate_bounded_value, validate_probability_vector, validate_histogram_batch
 from multinull_jsd.types import FloatArray, ScalarFloat
@@ -49,7 +47,6 @@ class NullHypothesis:
         if not isinstance(cdf_backend, CDFBackend):
             raise TypeError("cdf_backend must be an instance of CDFBackend.")
 
-        prob_vector = np.asarray(prob_vector)
         self._p: FloatArray = validate_probability_vector(name="prob_vector", value=prob_vector, n_categories=None)
         self._backend: CDFBackend = cdf_backend
         self._alpha: Optional[ScalarFloat] = None

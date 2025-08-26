@@ -123,7 +123,7 @@ class MultiNullJSDTest:
             Index or sequence of indices of null hypotheses to remove. Must be valid indices of the current nulls. The
             indexing is one-based, i.e., the first null hypothesis has index 1.
         """
-        validate_null_indices(name="null_index", value=null_index, n_nulls=len(self._nulls))
+        validate_null_indices(name="null_index", value=null_index, n_nulls=len(self._nulls), keep_duplicates=False)
         raise NotImplementedError
 
     def get_nulls(self) -> IndexedHypotheses:
@@ -207,7 +207,7 @@ class MultiNullJSDTest:
             specified null hypothesis. If a single index is provided, a scalar float is returned; if a sequence of
             indices is provided, a 1-D array of floats is returned.
         """
-        validate_null_indices(name="null_index", value=null_index, n_nulls=len(self._nulls))
+        validate_null_indices(name="null_index", value=null_index, n_nulls=len(self._nulls), keep_duplicates=True)
         raise NotImplementedError
 
     def get_beta(self, prob_query: npt.ArrayLike) -> ScalarFloat | FloatArray:

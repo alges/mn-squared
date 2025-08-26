@@ -276,7 +276,7 @@ def validate_histogram_batch(name: str, value: Any, n_categories: int, histogram
         raise ValueError(f"{name} must contain histograms with exactly {histogram_size} samples in each row.")
     return int_array
 
-def validate_null_indices(name: str, value: Any, n_nulls: int) -> tuple[ScalarInt, ...]:
+def validate_null_indices(name: str, value: Any, n_nulls: int, keep_duplicates: bool) -> tuple[ScalarInt, ...]:
     """
     Check that the given value is a sequence of integers representing null indices.
 
@@ -288,6 +288,8 @@ def validate_null_indices(name: str, value: Any, n_nulls: int) -> tuple[ScalarIn
         Object to validate. Usually the raw argument received by a public API.
     n_nulls
         Total number of null hypotheses in the container. The indices must be in the integer interval [1,n_nulls].
+    keep_duplicates
+        If ``True``, duplicate indices are kept in the returned tuple; if ``False``, duplicates are removed.
 
     Raises
     ------
@@ -316,13 +318,17 @@ def validate_null_indices(name: str, value: Any, n_nulls: int) -> tuple[ScalarIn
             value_seq = tuple(value)
         except TypeError:
             raise TypeError(f"{name} must be an integer or an iterable of integers. Got {type(value).__name__}.")
-    value_list: list[int] = list()
-    idx: int
-    for idx in value_seq:
-        if idx not in value_list:
-            value_list.append(validate_int_value(name=f"{idx} in {name}", value=idx, min_value=1, max_value=n_nulls))
-
-    return tuple(value_list)
+    value_list: list[int]
+    if keep_duplicates:
+        value_list = list()
+        idx: int
+        for idx in value_seq:
+            if idx not in value_list:
+                value_list.append(
+                    validate_int_value(name=f"{idx} in {name}", value=idx, min_value=1, max_value=n_nulls)
+                )
+        return tuple(value_list)
+    return value_seq
 
 def validate_null_slice(name: str, value: Any, n_nulls: int) -> slice:
     """

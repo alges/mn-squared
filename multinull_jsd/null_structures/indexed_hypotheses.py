@@ -73,7 +73,7 @@ class IndexedHypotheses:
         if isinstance(idx, slice):
             validate_null_slice(name="idx", value=idx, n_nulls=len(self))
         else:
-            validate_null_indices(name="idx", value=idx, n_nulls=len(self))
+            validate_null_indices(name="idx", value=idx, n_nulls=len(self), keep_duplicates=True)
         raise NotImplementedError
 
     @overload
@@ -83,7 +83,7 @@ class IndexedHypotheses:
         if isinstance(idx, slice):
             validate_null_slice(name="idx", value=idx, n_nulls=len(self))
         else:
-            validate_null_indices(name="idx", value=idx, n_nulls=len(self))
+            validate_null_indices(name="idx", value=idx, n_nulls=len(self), keep_duplicates=False)
         raise NotImplementedError
 
     @overload
