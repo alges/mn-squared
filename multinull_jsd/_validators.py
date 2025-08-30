@@ -3,8 +3,8 @@
 side-effect-free checks** so that importing it never triggers heavy numerical work (NumPy is imported lazily and only
 for datatype inspection).
 """
-from multinull_jsd.types import FloatArray, FloatDType, IntArray, IntDType, ScalarInt, ScalarFloat
-from typing import Any, Optional, overload
+from multinull_jsd.types import FloatArray, FloatDType, IntArray, IntDType, ScalarInt, TNumber
+from typing import Any, Optional
 
 import numpy.typing as npt
 import numpy as np
@@ -14,18 +14,10 @@ import numbers
 
 FLOAT_TOL: float = 1e-12
 
-@overload
-def validate_bounded_value(
-    name: str, value: ScalarInt, min_value: Optional[int] = None, max_value: Optional[int] = None
-) -> ScalarInt: ...
-@overload
-def validate_bounded_value(
-    name: str, value: ScalarFloat, min_value: Optional[float] = None, max_value: Optional[float] = None
-) -> ScalarFloat: ...
 
 def validate_bounded_value(
-    name: str, value: ScalarInt | ScalarFloat, min_value: Optional[float] = None, max_value: Optional[float] = None
-) -> ScalarInt | ScalarFloat:
+    name: str, value: TNumber, min_value: Optional[float] = None, max_value: Optional[float] = None
+) -> TNumber:
     """
     Check that the given value is a real number within the defined bounds (inclusive).
 
@@ -47,7 +39,7 @@ def validate_bounded_value(
     ValueError
         If *value* is outside the defined bounds or if the bounds are inconsistent (e.g., `min_value > max_value`).
     """
-    if not isinstance(value, numbers.Real) or isinstance(value, bool):
+    if not isinstance(value, (int, float, np.integer, np.floating)) or isinstance(value, bool):
         raise TypeError(f"{name} must be a real number. Got {type(value).__name__}.")
     if min_value is not None and max_value is not None and min_value > max_value:
         raise ValueError(f"Inconsistent bounds for {name}: min_value ({min_value}) > max_value ({max_value}).")
@@ -56,6 +48,7 @@ def validate_bounded_value(
     if max_value is not None and value > max_value:
         raise ValueError(f"{name} must be at most {max_value}. Got {value!r}.")
     return value
+
 
 def validate_int_value(name: str, value: Any, min_value: Optional[int] = None, max_value: Optional[int] = None) -> int:
     """
@@ -83,6 +76,7 @@ def validate_int_value(name: str, value: Any, min_value: Optional[int] = None, m
         # bool is a subclass of int, so we need to exclude it explicitly
         raise TypeError(f"{name} must be an integer. Got {type(value).__name__}.")
     return validate_bounded_value(name=name, value=int(value), min_value=min_value, max_value=max_value)
+
 
 def validate_finite_array(name: str, value: Any) -> npt.NDArray:
     """
@@ -117,6 +111,7 @@ def validate_finite_array(name: str, value: Any) -> npt.NDArray:
     if not np.all(a=np.isfinite(array)):
         raise ValueError(f"{name} must contain only finite values; not NaN or Inf.")
     return array
+
 
 def validate_non_negative_batch(name: str, value: Any, n_categories: Optional[int]) -> npt.NDArray:
     """
@@ -158,6 +153,7 @@ def validate_non_negative_batch(name: str, value: Any, n_categories: Optional[in
         raise ValueError(f"{name} must contain non-negative values.")
     return array
 
+
 def validate_probability_vector(name: str, value: Any, n_categories: Optional[int]) -> FloatArray:
     """
     Check that the given value is a non-negative 1-D array-like object representing a probability distribution.
@@ -191,6 +187,7 @@ def validate_probability_vector(name: str, value: Any, n_categories: Optional[in
     if value.shape[0] != 1:
         raise ValueError(f"{name} must be a 1-D array-like object.")
     return value[0]
+
 
 def validate_probability_batch(name: str, value: Any, n_categories: Optional[int]) -> FloatArray:
     """
@@ -226,6 +223,7 @@ def validate_probability_batch(name: str, value: Any, n_categories: Optional[int
     if not np.allclose(a=np.sum(a=array, axis=1), b=1.0, atol=FLOAT_TOL, rtol=0.0):
         raise ValueError(f"{name} must contain probability distributions that sum to one in each row.")
     return array.astype(dtype=FloatDType)
+
 
 def validate_histogram_batch(name: str, value: Any, n_categories: int, histogram_size: int) -> IntArray:
     """
@@ -276,6 +274,7 @@ def validate_histogram_batch(name: str, value: Any, n_categories: int, histogram
         raise ValueError(f"{name} must contain histograms with exactly {histogram_size} samples in each row.")
     return int_array
 
+
 def validate_null_indices(name: str, value: Any, n_nulls: int, keep_duplicates: bool) -> tuple[ScalarInt, ...]:
     """
     Check that the given value is a sequence of integers representing null indices.
@@ -314,7 +313,7 @@ def validate_null_indices(name: str, value: Any, n_nulls: int, keep_duplicates: 
     elif isinstance(value, (str, bytes)):
         raise TypeError(f"{name} must be an integer or an iterable of integers. Got {type(value).__name__}.")
     else:
-        try :
+        try:
             value_seq = tuple(value)
         except TypeError:
             raise TypeError(f"{name} must be an integer or an iterable of integers. Got {type(value).__name__}.")
@@ -326,6 +325,7 @@ def validate_null_indices(name: str, value: Any, n_nulls: int, keep_duplicates: 
                 validate_int_value(name=f"{idx} in {name}", value=idx, min_value=1, max_value=n_nulls)
             )
     return tuple(value_list)
+
 
 def validate_null_slice(name: str, value: Any, n_nulls: int) -> slice:
     """

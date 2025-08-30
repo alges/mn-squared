@@ -4,7 +4,7 @@ Utility type aliases and protocols used across *multinull_jsd*.
 The file purposefully contains **no runtime logic** so it can be imported without triggering heavy scientific routines
 during static-typing or documentation builds.
 """
-from typing import Protocol, TypeAlias, runtime_checkable, overload
+from typing import Protocol, TypeAlias, TypeVar, runtime_checkable, overload
 
 import numpy.typing as npt
 import numpy as np
@@ -26,6 +26,9 @@ ScalarFloat: TypeAlias = float | np.floating
 
 #: Alias for a scalar that can be either a Python ``int`` or a NumPy integer.
 ScalarInt: TypeAlias = int | np.integer
+
+#: Type variable representing any numeric scalar type (float or int, Python or NumPy).
+TNumber: TypeVar = TypeVar("TNumber", float, np.floating, int, np.integer)
 
 
 @runtime_checkable
@@ -49,4 +52,5 @@ class CDFCallable(Protocol):
     def __call__(self, tau: npt.ArrayLike) -> FloatArray: ...
     def __call__(self, tau: ScalarFloat | npt.ArrayLike) -> ScalarFloat | FloatArray: ...
 
-__all__ = ["FloatDType", "IntDType", "FloatArray", "IntArray", "ScalarFloat", "ScalarInt", "CDFCallable"]
+
+__all__ = ["FloatDType", "IntDType", "FloatArray", "IntArray", "ScalarFloat", "ScalarInt", "TNumber", "CDFCallable"]

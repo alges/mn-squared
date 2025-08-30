@@ -15,6 +15,7 @@ ScalarFloat = float | np.floating
 IntArray: TypeAlias = npt.NDArray[np.int64]
 FloatArray: TypeAlias = npt.NDArray[np.float64]
 
+
 @runtime_checkable
 class CDFCallable(Protocol):
     @overload
@@ -22,6 +23,7 @@ class CDFCallable(Protocol):
     @overload
     def __call__(self, tau: npt.ArrayLike) -> FloatArray: ...
     def __call__(self, tau: ScalarFloat | npt.ArrayLike) -> ScalarFloat | FloatArray: ...
+
 
 @st.composite
 def _p_vector(draw: st.DrawFn, k: int = 3) -> FloatArray:
@@ -39,6 +41,7 @@ def _p_vector(draw: st.DrawFn, k: int = 3) -> FloatArray:
         array[0] = 1.0
     return array / array.sum()
 
+
 @st.composite
 def _p_batch(draw: st.DrawFn, m: int, k: int = 3) -> FloatArray:
     """
@@ -46,16 +49,18 @@ def _p_batch(draw: st.DrawFn, m: int, k: int = 3) -> FloatArray:
     """
     return np.stack(arrays=[draw(_p_vector(k=k)) for _ in range(m)], axis=0)
 
+
 @st.composite
 def _histogram(draw: st.DrawFn, n: int = 10, k: int = 3) -> IntArray:
     """
     Hypothesis strategy: generate a random histogram of dimension k summing to n.
     """
-    expected_counts: FloatArray = n * draw(_p_vector(k=k))
+    expected_counts: FloatArray = float(n) * draw(_p_vector(k=k))
     hist: IntArray = np.floor(expected_counts).astype(np.int64)
     remainder_order: IntArray = np.argsort(a=hist - expected_counts)
     hist[remainder_order[:int(n - hist.sum())]] += 1
     return hist
+
 
 @st.composite
 def _histogram_batch(draw: st.DrawFn, m: int, n: int = 10, k: int = 3) -> IntArray:
@@ -92,12 +97,14 @@ class TestCDFBackend(CDFBackend):
     def __repr__(self) -> str:
         return f"TestCDFBackend(evidence_size={self._n})"
 
+
 @pytest.fixture
 def k_default() -> int:
     """
     Default number of categories for tests.
     """
     return 3
+
 
 @pytest.fixture
 def n_default() -> int:
@@ -106,6 +113,7 @@ def n_default() -> int:
     """
     return 10
 
+
 @pytest.fixture
 def prob_vec3_default():
     """
@@ -113,12 +121,14 @@ def prob_vec3_default():
     """
     return np.array(object=[0.5, 0.3, 0.2], dtype=np.float64)
 
+
 @pytest.fixture
 def fake_backend(n_default: int) -> TestCDFBackend:
     """
     A fake CDF backend for tests.
     """
     return TestCDFBackend(evidence_size=n_default)
+
 
 # Public strategies for reuse in tests
 p_vector = _p_vector

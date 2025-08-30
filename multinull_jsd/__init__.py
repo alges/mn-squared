@@ -27,6 +27,7 @@ __all__ = ["MultiNullJSDTest", "available_cdf_backends"]
 if TYPE_CHECKING:
     from .core import MultiNullJSDTest
 
+
 def available_cdf_backends() -> tuple[str, ...]:
     """
     List the names of available CDF backends.
@@ -39,11 +40,13 @@ def available_cdf_backends() -> tuple[str, ...]:
     from .cdf_backends import NON_MC_CDF_BACKEND_FACTORY, MC_CDF_BACKEND_FACTORY
     return tuple(sorted(NON_MC_CDF_BACKEND_FACTORY.keys() | MC_CDF_BACKEND_FACTORY.keys()))
 
+
 def __getattr__(name: str) -> Any:
     if name == "MultiNullJSDTest":
         from .core import MultiNullJSDTest as _MultiNullJSDTest
         return _MultiNullJSDTest
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
 
 def __dir__() -> list[str]:
     return sorted(set(globals()) | set(__all__))

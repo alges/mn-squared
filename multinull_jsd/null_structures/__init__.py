@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from .indexed_hypotheses import IndexedHypotheses
     from .null_hypothesis import NullHypothesis
 
+
 def __getattr__(name: str) -> Any:
     if name == "IndexedHypotheses":
         from .indexed_hypotheses import IndexedHypotheses as _IndexedHypotheses
@@ -31,6 +32,7 @@ def __getattr__(name: str) -> Any:
         from .null_hypothesis import NullHypothesis as _NullHypothesis
         return _NullHypothesis
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
 
 def __dir__() -> list[str]:
     return sorted(set(globals()) | set(__all__))
