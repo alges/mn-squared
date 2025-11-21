@@ -12,10 +12,13 @@ backends.
 """
 from multinull_jsd.cdf_backends import CDFBackend
 from multinull_jsd._validators import validate_bounded_value, validate_probability_vector, validate_histogram_batch
-from multinull_jsd.types import FloatArray, ScalarFloat, IntArray
+from multinull_jsd.types import FloatArray, ScalarFloat, IntArray, CDFCallable, FloatDType
 from typing import Any, Optional
 
 import numpy.typing as npt
+import numpy as np
+
+BINARY_SEARCH_DEPTH: int = 2048
 
 
 class NullHypothesis:
@@ -48,9 +51,9 @@ class NullHypothesis:
 
         self._p: FloatArray = validate_probability_vector(name="prob_vector", value=prob_vector, n_categories=None)
         self._backend: CDFBackend = cdf_backend
+        self._cdf: CDFCallable = self._backend.get_cdf(prob_vector=self._p)
         self._alpha: Optional[ScalarFloat] = None
-
-        raise NotImplementedError
+        self._cached_jsd_threshold: Optional[ScalarFloat] = None
 
     def set_target_alpha(self, target_alpha: ScalarFloat) -> None:
         """
@@ -74,8 +77,7 @@ class NullHypothesis:
         self._alpha = validate_bounded_value(
             name="target_alpha", value=float(target_alpha), min_value=0.0, max_value=1.0
         )
-
-        raise NotImplementedError
+        self._cached_jsd_threshold = None
 
     def get_jsd_threshold(self) -> ScalarFloat:
         """
@@ -89,12 +91,37 @@ class NullHypothesis:
         Returns
         -------
         ScalarFloat
-            The smallest value satisfying the constraint.
+            The smallest value satisfying the constraint (numerically approximated).
         """
         if self._alpha is None:
             raise RuntimeError("Target alpha must be set before retrieving the JSD threshold.")
 
-        raise NotImplementedError
+        if self._cached_jsd_threshold is None:
+            # Compute target CDF value for the threshold to satisfy
+            target_cdf: float = 1.0 - float(self._alpha)
+
+            # Edge cases
+            if target_cdf <= 0.0:
+                return 0.0
+            if target_cdf >= 1.0:
+                return 1.0
+
+            # Binary search for the threshold in the interval [0, 1]
+            interval_low: float = 0.0
+            interval_high: float = 1.0
+
+            for _ in range(BINARY_SEARCH_DEPTH):
+                interval_mid: float = (interval_low + interval_high) / 2.0
+                if interval_mid == interval_low or interval_mid == interval_high:
+                    break
+                if float(self._cdf(np.nextafter(interval_mid, -np.inf))) >= target_cdf:
+                    interval_high = interval_mid
+                else:
+                    interval_low = interval_mid
+
+            self._cached_jsd_threshold = (interval_low + interval_high) / 2.0
+
+        return self._cached_jsd_threshold
 
     def infer_p_value(self, query: IntArray) -> ScalarFloat | FloatArray:
         """
@@ -120,13 +147,57 @@ class NullHypothesis:
             Array of p-values, one for each query. If the input is 1-D, the output is a scalar; if 2-D, the output is
             a 1-D array of p-values corresponding to each query.
         """
-        validate_histogram_batch(
-            name="query", value=query, n_categories=self._p.shape[-1], histogram_size=self._backend.evidence_size
+        def _kl_divergence(a: FloatArray, b: FloatArray) -> FloatArray:
+            """
+            Compute the Kullback-Leibler divergence D_KL(a || b) for each row in a and b.
+
+            Parameters
+            ----------
+            a
+                2-D array of shape (m, k).
+            b
+                2-D array of shape (m, k).
+
+            Returns
+            -------
+            FloatArray
+                1-D array of shape (m,) containing the KL divergence for each row.
+            """
+            with np.errstate(divide="ignore", invalid="ignore"):
+                return np.where(a > 0.0, a * np.log2(a / b), 0.0).sum(axis=1)
+
+        n: int = self._backend.evidence_size
+        query_batch: IntArray = validate_histogram_batch(
+            name="query", value=query, n_categories=self._p.shape[-1], histogram_size=n
         )
-        raise NotImplementedError
+
+        q_array: FloatArray = query_batch.astype(dtype=FloatDType, copy=False) / n
+        p_array: FloatArray = np.broadcast_to(array=self._p, shape=q_array.shape).astype(dtype=FloatDType, copy=False)
+        m_array: FloatArray = (p_array + q_array) / 2.0
+
+        distances: FloatArray = np.clip(
+            a=np.sqrt((_kl_divergence(a=p_array, b=m_array) + _kl_divergence(a=q_array, b=m_array)) / 2.0),
+            a_min=0,
+            a_max=1
+        )
+
+        p_values: FloatArray = 1.0 - self._cdf(np.nextafter(distances, -np.inf))
+
+        if query_batch.shape[0] == 1:
+            return float(p_values[0])
+
+        return p_values
+
 
     def __eq__(self, other: Any) -> bool:
-        raise NotImplementedError
+        if not isinstance(other, NullHypothesis):
+            return False
+        if self._backend is not other._backend:
+            return False
+        return bool(np.array_equal(a1=self._p, a2=other._p))
 
     def __repr__(self) -> str:
-        raise NotImplementedError
+        return (
+            f"NullHypothesis(k={int(self._p.shape[-1])}, n={self._backend.evidence_size}, "
+            f"alpha={'unset' if self._alpha is None else f'{float(self._alpha):.6g}'})"
+        )

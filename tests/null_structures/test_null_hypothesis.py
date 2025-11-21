@@ -43,7 +43,6 @@ def test_null_hypothesis_init_rejects_bad_probability_vector(fake_backend: TestC
         NullHypothesis(prob_vector=np.array(object=[0.6, 0.3, 0.3], dtype=np.float64), cdf_backend=fake_backend)
 
 
-@pytest.mark.xfail(reason="NullHypothesis.set_target_alpha not implemented yet.")
 def test_set_target_alpha_rejects_non_real(prob_vec3_default: FloatArray, fake_backend: TestCDFBackend) -> None:
     """
     set_target_alpha must reject non-real types (including bool).
@@ -55,7 +54,6 @@ def test_set_target_alpha_rejects_non_real(prob_vec3_default: FloatArray, fake_b
         nh.set_target_alpha(target_alpha=complex(1, 0))  # type: ignore[arg-type]
 
 
-@pytest.mark.xfail(reason="NullHypothesis.set_target_alpha not implemented yet.")
 def test_set_target_alpha_rejects_out_of_bounds(prob_vec3_default: FloatArray, fake_backend: TestCDFBackend) -> None:
     """
     set_target_alpha must enforce alpha ∈ [0,1].
@@ -67,7 +65,6 @@ def test_set_target_alpha_rejects_out_of_bounds(prob_vec3_default: FloatArray, f
         nh.set_target_alpha(target_alpha=1.0000001)
 
 
-@pytest.mark.xfail(reason="NullHypothesis.get_jsd_threshold not implemented yet.")
 def test_get_jsd_threshold_raises_if_alpha_not_set(
     prob_vec3_default: FloatArray, fake_backend: TestCDFBackend
 ) -> None:
@@ -141,7 +138,6 @@ def test_infer_p_value_valid_inputs(
     assert isinstance(out_batch, np.ndarray) and out_batch.shape == (3,)
 
 
-@pytest.mark.xfail(reason="NullHypothesis.__eq__ not implemented yet.")
 def test_null_hypothesis_equality_semantics(prob_vec3_default: FloatArray, fake_backend: TestCDFBackend) -> None:
     """
     Objects with identical p and the same backend should compare equal; otherwise unequal.
@@ -155,7 +151,6 @@ def test_null_hypothesis_equality_semantics(prob_vec3_default: FloatArray, fake_
     assert nh1 != nh3
 
 
-@pytest.mark.xfail(reason="NullHypothesis.__repr__ not implemented yet.")
 def test_null_hypothesis_repr_contains_class_and_dimensions(
     prob_vec3_default: FloatArray, fake_backend: TestCDFBackend
 ) -> None:
