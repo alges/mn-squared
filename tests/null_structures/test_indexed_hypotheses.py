@@ -44,7 +44,6 @@ def test_indexed_hypotheses_init_rejects_non_positive_prob_dim(fake_backend: Tes
         IndexedHypotheses(cdf_backend=fake_backend, prob_dim=-5)
 
 
-@pytest.mark.xfail(reason="IndexedHypotheses.add_null not implemented yet.")
 def test_add_null_validates_probability_vector_shape(fake_backend: TestCDFBackend, k_default: int) -> None:
     """
     add_null must validate the probability vector: 1-D of length k, non-negative, sums to one.
@@ -66,10 +65,9 @@ def test_add_null_validates_probability_vector_shape(fake_backend: TestCDFBacken
         ih.add_null(prob_vector=np.array(object=[0.6, 0.3, 0.3], dtype=np.float64), target_alpha=0.05)
 
 
-@pytest.mark.xfail(reason="IndexedHypotheses.add_null not implemented yet.")
 def test_add_null_validates_alpha_bounds(fake_backend: TestCDFBackend, k_default: int) -> None:
     """
-    add_null must enforce 0 ≤ target_alpha ≤ 1 and type must be real (not bool).
+    add_null must enforce 0 ≤ target_alpha ≤ 1, and the type must be real (not bool).
     """
     ih: IndexedHypotheses = IndexedHypotheses(cdf_backend=fake_backend, prob_dim=k_default)
     p: FloatArray = np.array(object=[0.5, 0.3, 0.2], dtype=np.float64)
@@ -81,10 +79,9 @@ def test_add_null_validates_alpha_bounds(fake_backend: TestCDFBackend, k_default
         ih.add_null(prob_vector=p, target_alpha=1.0000001)
 
 
-@pytest.mark.xfail(reason="IndexedHypotheses.add_null not implemented yet.")
 def test_add_null_returns_consecutive_one_based_indices(fake_backend: TestCDFBackend, k_default: int) -> None:
     """
-    add_null should assign indices 1,2,3,... in insertion order.
+    add_null should assign indices 1, 2, 3, ... in insertion order.
     """
     ih: IndexedHypotheses = IndexedHypotheses(cdf_backend=fake_backend, prob_dim=k_default)
     assert len(ih) == 0
@@ -96,7 +93,6 @@ def test_add_null_returns_consecutive_one_based_indices(fake_backend: TestCDFBac
     assert len(ih) == 2
 
 
-@pytest.mark.xfail(reason="IndexedHypotheses.__getitem__ not implemented yet.")
 def test_getitem_validates_indices_and_slices(fake_backend: TestCDFBackend, k_default: int) -> None:
     """
     __getitem__ must validate 1-based indices and proper slices.
@@ -118,7 +114,6 @@ def test_getitem_validates_indices_and_slices(fake_backend: TestCDFBackend, k_de
         _ = ih[slice(1, 1, 0)]
 
 
-@pytest.mark.xfail(reason="IndexedHypotheses.__getitem__ not implemented yet.")
 def test_getitem_returns_objects_and_slices(fake_backend: TestCDFBackend, k_default: int) -> None:
     """
     __getitem__ should return a NullHypothesis for int indices, and a list[NullHypothesis] for slices/iterables.
@@ -136,10 +131,9 @@ def test_getitem_returns_objects_and_slices(fake_backend: TestCDFBackend, k_defa
     assert isinstance(many, list) and all(isinstance(x, NullHypothesis) for x in many)
 
 
-@pytest.mark.xfail(reason="IndexedHypotheses.__delitem__ not implemented yet.")
 def test_delitem_compacts_indices(fake_backend: TestCDFBackend, k_default: int) -> None:
     """
-    __delitem__ should remove items and shift subsequent indices left to keep continuity (1,2,3,...).
+    __delitem__ should remove items and shift subsequent indices left to keep continuity (1, 2, 3, ...).
     """
     ih = IndexedHypotheses(cdf_backend=fake_backend, prob_dim=k_default)
     p1 = np.array(object=[0.5, 0.3, 0.2], dtype=np.float64)
@@ -159,7 +153,6 @@ def test_delitem_compacts_indices(fake_backend: TestCDFBackend, k_default: int) 
         _ = ih[3]
 
 
-@pytest.mark.xfail(reason="IndexedHypotheses.__contains__ not implemented yet.")
 def test_contains_accepts_null_hypothesis_and_raw_vector(fake_backend: TestCDFBackend, k_default: int) -> None:
     """
     __contains__ should work with either a NullHypothesis instance or a raw probability vector.
@@ -173,7 +166,6 @@ def test_contains_accepts_null_hypothesis_and_raw_vector(fake_backend: TestCDFBa
     assert np.array(object=[0.4, 0.4, 0.2], dtype=np.float64) not in ih
 
 
-@pytest.mark.xfail(reason="IndexedHypotheses.__iter__/__len__ not implemented yet.")
 def test_iter_and_len(fake_backend: TestCDFBackend, k_default: int) -> None:
     """
     Iteration should yield the stored nulls in index order; len should match their count.
@@ -189,7 +181,6 @@ def test_iter_and_len(fake_backend: TestCDFBackend, k_default: int) -> None:
     assert all(isinstance(x, NullHypothesis) for x in xs)
 
 
-@pytest.mark.xfail(reason="IndexedHypotheses.__repr__ not implemented yet.")
 def test_repr_contains_size_and_prob_dim(fake_backend: TestCDFBackend, k_default: int) -> None:
     """
     __repr__ should contain the class name, number of stored nulls, and the probability dimension.

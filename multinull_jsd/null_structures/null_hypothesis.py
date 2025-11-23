@@ -5,9 +5,9 @@ Responsibilities
 ----------------
 * Store probability vector :math:`\\mathbf{p}` and target significance level.
 * Offer fast vectorised p-value computation via a supplied CDF backend.
-* Provide helpers for p-value calculation & threshold retrieval.
+* Provide helpers for p-value calculation and threshold retrieval.
 
-This module focuses on input validation, bookkeeping and clean method signatures. Heavy numerical work belongs in CDF
+This module focuses on input validation, bookkeeping, and clean method signatures. Heavy numerical work belongs in CDF
 backends.
 """
 from multinull_jsd.cdf_backends import CDFBackend
@@ -97,7 +97,7 @@ class NullHypothesis:
             raise RuntimeError("Target alpha must be set before retrieving the JSD threshold.")
 
         if self._cached_jsd_threshold is None:
-            # Compute target CDF value for the threshold to satisfy
+            # Compute the target CDF value for the threshold to satisfy
             target_cdf: float = 1.0 - float(self._alpha)
 
             # Edge cases
@@ -188,6 +188,17 @@ class NullHypothesis:
 
         return p_values
 
+    @property
+    def probability_vector(self) -> FloatArray:
+        """
+        The reference probability vector :math:`\\mathbf{p}`.
+
+        Returns
+        -------
+        FloatArray
+            1-D array of shape ``(k,)`` containing the probability vector.
+        """
+        return self._p
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, NullHypothesis):

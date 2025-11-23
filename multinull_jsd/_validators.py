@@ -357,10 +357,10 @@ def validate_null_slice(name: str, value: Any, n_nulls: int) -> slice:
         raise TypeError(f"{name} must be a slice object. Got {type(value).__name__}.")
 
     start: int = 1 if value.start is None else validate_int_value(
-        name=f"{name}.start", value=value.start, min_value=1, max_value=n_nulls
+        name=f"{name}.start", value=value.start, min_value=1, max_value=n_nulls + 1
     )
     stop: int = n_nulls + 1 if value.stop is None else validate_int_value(
-        name=f"{name}.stop", value=value.stop, min_value=1, max_value=n_nulls
+        name=f"{name}.stop", value=value.stop, min_value=1, max_value=n_nulls + 1
     )
     step: int = 1 if value.step is None else validate_int_value(
         name=f"{name}.step", value=value.step, min_value=1

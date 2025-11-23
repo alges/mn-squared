@@ -63,6 +63,7 @@ class TestCDFBackend(CDFBackend):
     A minimal, deterministic backend for tests. Does NOT call super().__init__. The returned CDF is
     :math:`F(\\tau) = \\mathrm{clip}(\\tau, 0, 1)`, which is vectorised, monotone, and bounded.
     """
+    __test__: bool = False
     def __init__(self, evidence_size: int):
         # TODO: Remove the try-except when base class implements __init__.
         try:

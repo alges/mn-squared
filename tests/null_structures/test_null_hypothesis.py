@@ -76,7 +76,6 @@ def test_get_jsd_threshold_raises_if_alpha_not_set(
         nh.get_jsd_threshold()
 
 
-@pytest.mark.xfail(reason="NullHypothesis.get_jsd_threshold not implemented yet.")
 def test_get_jsd_threshold_success_path(prob_vec3_default: FloatArray, fake_backend: TestCDFBackend) -> None:
     """
     When implemented, get_jsd_threshold should return a finite scalar once alpha is set.
@@ -88,7 +87,6 @@ def test_get_jsd_threshold_success_path(prob_vec3_default: FloatArray, fake_back
     assert 0.0 <= tau <= 1.0
 
 
-@pytest.mark.xfail(reason="NullHypothesis.infer_p_value not implemented yet.")
 def test_infer_p_value_rejects_wrong_histogram_shape(
     prob_vec3_default: FloatArray, fake_backend: TestCDFBackend
 ) -> None:
@@ -100,17 +98,15 @@ def test_infer_p_value_rejects_wrong_histogram_shape(
         nh.infer_p_value(query=np.array(object=[1, 2, 7, 0], dtype=np.int64))  # k=4 vs expected 3
 
 
-@pytest.mark.xfail(reason="NullHypothesis.infer_p_value not implemented yet.")
 def test_infer_p_value_rejects_non_integer_counts(prob_vec3_default: FloatArray, fake_backend: TestCDFBackend) -> None:
     """
     infer_p_value must reject non-integer histogram counts.
     """
     nh: NullHypothesis = NullHypothesis(prob_vector=prob_vec3_default, cdf_backend=fake_backend)
     with pytest.raises(expected_exception=ValueError):
-        nh.infer_p_value(query=np.array(object=[5.0, 3.0, 2.0], dtype=np.float64))
+        nh.infer_p_value(query=np.array(object=[5.0, 3.5, 1.5], dtype=np.float64))
 
 
-@pytest.mark.xfail(reason="NullHypothesis.infer_p_value not implemented yet.")
 def test_infer_p_value_rejects_wrong_total_count(prob_vec3_default: FloatArray, fake_backend: TestCDFBackend) -> None:
     """
     infer_p_value must enforce that each histogram sums to n (backend.evidence_size).
@@ -120,7 +116,6 @@ def test_infer_p_value_rejects_wrong_total_count(prob_vec3_default: FloatArray, 
         nh.infer_p_value(query=np.array(object=[1, 1, 1], dtype=np.int64))
 
 
-@pytest.mark.xfail(reason="NullHypothesis.infer_p_value not implemented yet.")
 def test_infer_p_value_valid_inputs(
     prob_vec3_default: FloatArray, fake_backend: TestCDFBackend, n_default: int
 ) -> None:
