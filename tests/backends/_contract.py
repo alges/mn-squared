@@ -26,14 +26,14 @@ def test_backend_contract_vectorised_monotone_and_bounded(
 ) -> None:
     """
     Contract: get_cdf returns a callable cdf such that:
-      - it is vectorised (array-in → array-out, same shape),
+      - it is vectorized (array-in → array-out, same shape),
       - it is clipped to [0,1],
       - it is monotone non-decreasing in tau (allowing tiny numerical jitter).
     """
     backend: CDFBackend = make_backend(n_default)
     cdf = backend.get_cdf(prob_vector=prob_vec3_default)
 
-    # Vectorised behavior & clipping on a small array
+    # Vectorized behavior and clipping on a small array
     tau_small: FloatArray = np.array(object=[-0.2, 0.0, 0.25, 1.0, 1.3], dtype=np.float64)
     out_small: FloatArray = cdf(tau=tau_small)
     assert isinstance(out_small, np.ndarray)
@@ -51,7 +51,7 @@ def test_backend_contract_scalar_and_array_return_types(
     make_backend: BackendFactory, n_default: int, prob_vec3_default: FloatArray
 ) -> None:
     """
-    Contract: scalar input → Python float; array input → float64 ndarray with same shape.
+    Contract: scalar input → Python float; array input → float64 ndarray with the same shape.
     """
     backend: CDFBackend = make_backend(n_default)
     cdf = backend.get_cdf(prob_vector=prob_vec3_default)

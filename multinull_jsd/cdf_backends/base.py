@@ -6,9 +6,10 @@ a given null probability vector.
 
 Design contract
 ---------------
-* **Statelessness per call** – the object may cache expensive pre-computations (e.g. multinomial coefficient tables)
+* **Statelessness per call** – the object may cache expensive pre-computations (e.g., multinomial coefficient tables).
   but ``get_cdf`` must allow clean calls.
-* **Thread-safety** – subclasses should not keep mutable state that changes during evaluation of the returned callable.
+* **Thread-safety** – subclasses should not keep a mutable state that changes during evaluation of the returned
+  callable.
 * **CDF properties** – the callable returned by ``get_cdf`` MUST be:
   - vectorised (broadcasts over ``tau``),
   - monotone non-decreasing in ``tau``,
@@ -36,9 +37,7 @@ class CDFBackend(ABC):
         If ``evidence_size`` is not positive.
     """
     def __init__(self, evidence_size: int) -> None:
-        # TODO: Create base initialization routine
-        validate_int_value(name="evidence_size", value=evidence_size, min_value=1)
-        raise NotImplementedError
+        self._evidence_size: int = validate_int_value(name="evidence_size", value=evidence_size, min_value=1)
 
     @property
     def evidence_size(self) -> int:
@@ -51,7 +50,7 @@ class CDFBackend(ABC):
         int
             The number of draws :math:`n`.
         """
-        raise NotImplementedError
+        return self._evidence_size
 
     @abstractmethod
     def get_cdf(self, prob_vector: FloatArray) -> CDFCallable:
@@ -71,7 +70,7 @@ class CDFBackend(ABC):
         Returns
         -------
         CDFCallable
-            A monotone, vectorised cumulative-distribution function. Returned callable must accept either a Python
+            A monotone, vectorized cumulative-distribution function. Returned callable must accept either a Python
             scalar or a numpy array-like object and return a Python float or numpy array, respectively.
 
         Raises
@@ -84,4 +83,4 @@ class CDFBackend(ABC):
 
     @abstractmethod
     def __repr__(self) -> str:
-        raise NotImplementedError
+        pass
