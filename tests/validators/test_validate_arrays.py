@@ -7,7 +7,7 @@ from multinull_jsd._validators import validate_finite_array
 from hypothesis.extra import numpy as hnp
 from hypothesis import strategies as st
 from hypothesis import given
-from typing import TypeAlias
+from typing import TypeAlias, Union
 
 import numpy.typing as npt
 import numpy as np
@@ -26,7 +26,7 @@ def test_validate_finite_array_accepts_numeric_real_python_lists() -> None:
     Test that validate_finite_array accepts a Python list of real numbers (ints and floats).
     """
     original: list[int | float] = [1, 2, 3.0]
-    output: IntArray | FloatArray = validate_finite_array(name="a", value=original)
+    output: Union[IntArray, FloatArray] = validate_finite_array(name="a", value=original)
     assert isinstance(output, np.ndarray)
     assert output.dtype.kind in ("i", "f")
     assert np.array_equal(a1=output, a2=np.asarray(original))

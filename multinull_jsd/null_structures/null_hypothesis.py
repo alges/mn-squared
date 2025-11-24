@@ -10,6 +10,7 @@ Responsibilities
 This module focuses on input validation, bookkeeping, and clean method signatures. Heavy numerical work belongs in CDF
 backends.
 """
+from multinull_jsd._jsd_distance import jsd
 from multinull_jsd.cdf_backends import CDFBackend
 from multinull_jsd._validators import validate_bounded_value, validate_probability_vector, validate_histogram_batch
 from multinull_jsd.types import FloatArray, ScalarFloat, IntArray, CDFCallable, FloatDType
@@ -147,40 +148,11 @@ class NullHypothesis:
             Array of p-values, one for each query. If the input is 1-D, the output is a scalar; if 2-D, the output is
             a 1-D array of p-values corresponding to each query.
         """
-        def _kl_divergence(a: FloatArray, b: FloatArray) -> FloatArray:
-            """
-            Compute the Kullback-Leibler divergence D_KL(a || b) for each row in a and b.
-
-            Parameters
-            ----------
-            a
-                2-D array of shape (m, k).
-            b
-                2-D array of shape (m, k).
-
-            Returns
-            -------
-            FloatArray
-                1-D array of shape (m,) containing the KL divergence for each row.
-            """
-            with np.errstate(divide="ignore", invalid="ignore"):
-                return np.where(a > 0.0, a * np.log2(a / b), 0.0).sum(axis=1)
-
         n: int = self._backend.evidence_size
         query_batch: IntArray = validate_histogram_batch(
             name="query", value=query, n_categories=self._p.shape[-1], histogram_size=n
         )
-
-        q_array: FloatArray = query_batch.astype(dtype=FloatDType, copy=False) / n
-        p_array: FloatArray = np.broadcast_to(array=self._p, shape=q_array.shape).astype(dtype=FloatDType, copy=False)
-        m_array: FloatArray = (p_array + q_array) / 2.0
-
-        distances: FloatArray = np.clip(
-            a=np.sqrt((_kl_divergence(a=p_array, b=m_array) + _kl_divergence(a=q_array, b=m_array)) / 2.0),
-            a_min=0,
-            a_max=1
-        )
-
+        distances: FloatArray = jsd(p=self._p, q=query_batch.astype(dtype=FloatDType, copy=False) / n)
         p_values: FloatArray = 1.0 - self._cdf(np.nextafter(distances, -np.inf))
 
         if query_batch.shape[0] == 1:

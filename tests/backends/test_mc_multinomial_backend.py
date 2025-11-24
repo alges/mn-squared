@@ -49,7 +49,6 @@ def test_mc_multinomial_rejects_non_positive_evidence_size() -> None:
         MultinomialMCCDFBackend(evidence_size=-5, mc_samples=1000, seed=0)
 
 
-@pytest.mark.xfail(reason="Base CDFBackend.__init__ raises NotImplementedError, preventing mc_samples validation.")
 def test_mc_multinomial_rejects_non_integer_or_bool_mc_samples() -> None:
     """
     mc_samples must be an integer (bool/float rejected).
@@ -60,7 +59,6 @@ def test_mc_multinomial_rejects_non_integer_or_bool_mc_samples() -> None:
         MultinomialMCCDFBackend(evidence_size=10, mc_samples=1.5, seed=0)  # type: ignore[arg-type]
 
 
-@pytest.mark.xfail(reason="Base CDFBackend.__init__ raises NotImplementedError, preventing mc_samples validation.")
 def test_mc_multinomial_rejects_non_positive_mc_samples() -> None:
     """
     mc_samples must be >= 1.
@@ -71,7 +69,6 @@ def test_mc_multinomial_rejects_non_positive_mc_samples() -> None:
         MultinomialMCCDFBackend(evidence_size=10, mc_samples=-100, seed=0)
 
 
-@pytest.mark.xfail(reason="Base CDFBackend.__init__ raises NotImplementedError, preventing mc_samples validation.")
 def test_mc_multinomial_rejects_bad_seed_type_or_negative() -> None:
     """
     seed must be an integer >= 0.
