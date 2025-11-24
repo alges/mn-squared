@@ -114,5 +114,5 @@ def test_mc_multinomial_repr_contains_params() -> None:
     assert "15" in repr_str and "2000" in repr_str and "7" in repr_str
 
 
-# Pull in the shared backend contract tests (vectorisation, clipping, monotonicity, basic get_cdf validation)
+# Pull in the shared backend contract tests (vectorization, clipping, monotonicity, basic get_cdf validation)
 from tests.backends._contract import *  # noqa

@@ -48,7 +48,7 @@ def jsd(p: FloatArray, q: FloatArray) -> FloatArray:
             1-D array of shape (l,) containing the KL divergence for each row.
         """
         with np.errstate(divide="ignore", invalid="ignore"):
-            return np.where(a > 0.0, a * np.log2(a / b), 0.0).sum(axis=1)
+            return np.maximum(np.where(a > 0.0, a * np.log2(a / b), 0.0).sum(axis=1), 0.0)
 
     p_batch: FloatArray = validate_probability_batch(name="p", value=p, n_categories=None)
     q_batch: FloatArray = validate_probability_batch(name="q", value=q, n_categories=p_batch.shape[-1])

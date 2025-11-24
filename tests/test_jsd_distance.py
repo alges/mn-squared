@@ -5,7 +5,7 @@ Unit tests for multinull_jsd._jsd_distance.jsd.
 from multinull_jsd._jsd_distance import jsd
 
 from tests.conftest import p_vector
-from hypothesis import given
+from hypothesis import given, reproduce_failure
 from typing import TypeAlias
 
 import numpy.typing as npt
@@ -13,6 +13,13 @@ import numpy as np
 
 FloatDType: TypeAlias = np.float64
 FloatArray: TypeAlias = npt.NDArray[FloatDType]
+
+
+def test_jsd_self_is_zero_and_finite() -> None:
+    p: FloatArray = np.full(shape=5, fill_value=0.2)
+    d: FloatArray = jsd(p=p, q=p)
+    assert np.isfinite(d).all()
+    np.testing.assert_allclose(actual=d, desired=0.0, atol=1e-12)
 
 
 @given(p=p_vector(k=5))
