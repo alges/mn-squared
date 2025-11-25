@@ -80,6 +80,18 @@ class NullHypothesis:
         )
         self._cached_jsd_threshold = None
 
+    def get_target_alpha(self) -> Optional[ScalarFloat]:
+        """
+        Retrieve the target alpha value.
+
+        This method returns the target alpha value, which is an optional scalar floating-point number.
+
+        Returns
+        -------
+        The target alpha value, or None if it has not been set yet.
+        """
+        return self._alpha
+
     def get_jsd_threshold(self) -> ScalarFloat:
         """
         Return the critical JSd value :math:`\\tau` such that :math:`\\mathrm{CDF}(\\tau^-) \\geq 1-\\alpha`.
