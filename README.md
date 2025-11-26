@@ -4,8 +4,6 @@
 Hypothesis Test. It computes the statistic, via a backend that may be exact or Monte-Carlo, and makes decisions
 controlling per-null significances and the overall family-wise error rate.
 
-a typed Python toolkit for managing multiple nulls with per-null α, computing JSd statistics, estimating CDFs (exact or Monte-Carlo), and making decisions with FWER/β insights.
-
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
 ![License](https://img.shields.io/badge/license-To%20be%20defined-red)
 [![pre-commit](https://img.shields.io/badge/pre--commit-To%20be%20enabled-red?logo=pre-commit)](https://pre-commit.com/)

@@ -44,6 +44,7 @@ def available_cdf_backends() -> tuple[str, ...]:
 def __getattr__(name: str) -> Any:
     if name == "MultiNullJSDTest":
         from .core import MultiNullJSDTest as _MultiNullJSDTest
+        globals()["MultiNullJSDTest"] = _MultiNullJSDTest
         return _MultiNullJSDTest
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
