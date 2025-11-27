@@ -5,8 +5,8 @@ Hypothesis Test. It computes the statistic, via a backend that may be exact or M
 controlling per-null significances and the overall family-wise error rate.
 
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
-![License](https://img.shields.io/badge/license-To%20be%20defined-red)
-[![pre-commit](https://img.shields.io/badge/pre--commit-To%20be%20enabled-red?logo=pre-commit)](https://pre-commit.com/)
+![License](https://img.shields.io/badge/license-Apache--2.0-blue)
+[![pre-commit](https://img.shields.io/badge/pre--commit-Enabled-success?logo=pre-commit)](https://pre-commit.com/)
 
 > **Status:** Pre-alpha API scaffold. Validators and tests are implemented; core orchestration and CDF backends are stubs raising `NotImplementedError`.
 
@@ -87,7 +87,7 @@ make html
 ## Versioning & license
 
 * Versioning: SemVer (pre-1.0 may introduce breaking changes).
-* License: to be defined.
+* License: Apache-2.0.
 
 ## Citation
 
