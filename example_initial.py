@@ -114,7 +114,7 @@ def main() -> None:
     #    k ≥ 1 → index (1-based) of the selected null hypothesis
     #
     # In this example we only have one histogram, so test.infer_decisions returns an integer scalar.
-    decision_code = test.infer_decisions(hist_query=observed_counts)
+    decision_code = int(test.infer_decisions(hist_query=observed_counts))
 
     # ------------------------------------------------------------------
     # 5. Print results in a human-friendly way
