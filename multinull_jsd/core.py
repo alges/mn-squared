@@ -292,7 +292,7 @@ class MultiNullJSDTest:
         alphas: FloatArray = np.empty(shape=len(null_indexes_list), dtype=FloatDType)
 
         for idx_pos, null_idx_base_1 in enumerate(null_indexes_list):
-            null_p: FloatArray = self._nulls[int(null_idx_base_1) - 1].probability_vector.astype(
+            null_p: FloatArray = self._nulls[int(null_idx_base_1)].probability_vector.astype(
                 dtype=FloatDType, copy=False,
             )
             # Probability mass of *each* null decision under H ~ Multinomial(n, p_ℓ)
