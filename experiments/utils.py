@@ -137,7 +137,7 @@ def int_logspace_unique(n: int, start: int = 1, stop: int = 10_000) -> list[int]
 
     # final safety fallback (only triggers for extreme n): linear fill
     if np.unique(ar=vals).size != n:
-        vals = np.arange(start=start, stop=start + n, dtype=int)
+        vals = np.arange(start, start + n, dtype=int)
         vals[-1] = min(vals[-1], stop)  # noqa
 
     return vals.tolist()
