@@ -840,6 +840,7 @@ def run_experiment_core_for_scenario(
 
             # MultiNullJSD variants
             if method == METHOD_JSD:
+                print(f"{scenario.name} | {method} | n={n}")
                 cdf_method: str = scenario.cdf_method
                 mc_samples: int | None = scenario.mc_samples
                 mc_seed: int | None = scenario.mc_seed

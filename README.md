@@ -1,19 +1,20 @@
 # Multi-Null Jensen–Shannon Distance (JSd) Hypothesis Test
 
-`multinull-jsd`: An implementation for the multi-null (multiple null hypotheses) Jensen–Shannon Distance (JSd) based
-Hypothesis Test. It computes the statistic, via a backend that may be exact or Monte-Carlo, and makes decisions
-controlling per-null significances and the overall family-wise error rate.
+`multinull-jsd` implements a **multi-null** Jensen–Shannon distance (JSd) based hypothesis test for multinomial data.
+Given **multiple candidate null distributions** ($\mathbf{p}_{\ell}$) and observed histograms ($\mathbf{h}$), it computes p-values using an
+exact or Monte-Carlo CDF backend and returns **decisions that control per-null significance levels** and the overall
+**family-wise error rate (FWER)**.
 
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-blue)
 [![pre-commit](https://img.shields.io/badge/pre--commit-Enabled-success?logo=pre-commit)](https://pre-commit.com/)
 
-> **Status:** Pre-alpha API scaffold. Validators and tests are implemented; core orchestration and CDF backends are stubs raising `NotImplementedError`.
+> **Status:** **Stable (v1.0)** — public API is stable.
 
 ## Installation
 
 ```bash
-pip install -e .
+pip install multinull-jsd
 ````
 
 Python **≥ 3.10**, NumPy **≥ 1.24**.
@@ -24,24 +25,31 @@ Python **≥ 3.10**, NumPy **≥ 1.24**.
 from multinull_jsd import MultiNullJSDTest
 
 # NOTE: API scaffold — methods raise NotImplementedError until implemented.
-test = MultiNullJSDTest(evidence_size=100, prob_dim=3, cdf_method="mc_multinomial", mc_samples=10_000, seed=1234)
+test = MultiNullJSDTest(evidence_size=100, prob_dim=3, cdf_method="mc_multinomial", mc_samples=50_000, seed=1234)
 test.add_nulls([0.5, 0.3, 0.2], target_alpha=0.05)
 test.add_nulls([0.4, 0.4, 0.2], target_alpha=0.01)
 
 histograms = [[55, 22, 23], [40, 39, 21], [0, 3, 97]]
 p_vals = test.infer_p_values(histograms)
 decisions = test.infer_decisions(histograms)
+
+print("p-values:", p_vals)
+print("decisions:", decisions)
 ```
 
 ## Concepts
 
-* **JSd statistic:** divergence between empirical histogram $H/n$ and a reference $p$.
-* **Multi-null setting:** several candidate $p$ vectors; choose the least-rejected null or reject all.
+* **JSd statistic:** divergence between empirical histogram ($\mathbf{h}/n$) and a reference ($\mathbf{p}$).
+* **Multi-null setting:** several candidate vectors$. A query, $\mathbf{h}$, is either assigned to the “least-rejected”
+  null or **rejects all**
 * **Backends:**
-  * `exact`: enumerate histograms in $\Delta'_{k,n}$ to compute the empirical CDF (ECDF); complexity $O(n^{k-1})$ for fixed $k$.
-  * `mc_multinomial`: draw $H\sim \text{Multinomial}(n, p)$; ECDF converges by strong law of large numbers (SLLN).
-  * `mc_normal`: CLT proxy with $\mathcal{N}(n p, n(\mathrm{diag}(p)-pp^\top))$.
-* **Error metrics:** per-null $\alpha$; overall family-wise error rate (FWER); worst-case ($\beta$) at a query $q$.
+  * `exact`: enumerate histograms in $\Delta'_{k,n}$ to compute the empirical CDF (ECDF); complexity $O(n^{k-1})$ for
+    fixed $k$.
+  * `mc_multinomial`: draw $\mathbf{H}\sim \text{Multinomial}(n, \mathbf{p})$; ECDF converges by strong law of large
+    numbers (SLLN).
+  * `mc_normal`: CLT proxy with $\mathcal{N}(n\mathbf{p}, n(\mathrm{diag}(\mathbf{p})-\mathbf{p}\mathbf{p}^\top))$.
+* **Error control:** per-null $\alpha$; overall family-wise error rate (FWER); worst-case ($\beta$) at a query
+  $\mathbf{q}$.
 
 ## Public API
 
@@ -49,7 +57,7 @@ decisions = test.infer_decisions(histograms)
 from multinull_jsd import MultiNullJSDTest, available_cdf_backends
 ```
 
-Advanced users may import:
+Advanced imports:
 
 ```
 multinull_jsd.cdf_backends     # ExactCDFBackend, NormalMCCDFBackend, MultinomialMCCDFBackend
@@ -58,9 +66,10 @@ multinull_jsd.null_structures  # IndexedHypotheses, NullHypothesis
 
 ## Performance & numerics
 
-* Exact backend scales roughly as $O(n^{k-1})$; use MC for larger $n$ or $k$.
-* Tolerance: `FLOAT_TOL = 1e-12` for sum-to-one and integer-like checks.
-* MC paths will be deterministic under a fixed `seed`.
+* Exact backend is intended for small-to-moderate ((n,k)) due to combinatorial growth.
+* Monte-Carlo backends scale well and are recommended for larger regimes.
+* Validations use a small floating tolerance for simplex / integer-like checks.
+* MC results are **deterministic** under a fixed `seed`.
 
 ### Project layout
 
@@ -71,22 +80,13 @@ multinull_jsd/
   _validators.py       # Shared validation helpers (implemented)
   core.py              # MultiNullJSDTest orchestrator (stub)
 tests/                 # Unit + property tests and backend contract tests
-```
-
-## Documentation
-
-Local build:
-
-```bash
-cd docs
-pip install -r requirements.txt  # or: pip install -e ".[docs]"
-make html
-# open _build/html/index.html
+docs/                  # Documentation (Sphinx)
+experiments/           # Optional: benchmarking / comparison scripts (if present)
 ```
 
 ## Versioning & license
 
-* Versioning: SemVer (pre-1.0 may introduce breaking changes).
+* Versioning: **SemVer**.
 * License: Apache-2.0.
 
 ## Citation
@@ -97,7 +97,7 @@ There is an associated preprint describing the methodology being written up. In 
 @software{multinull_jsd,
   title = {multinull-jsd: Multi-Null Jensen–Shannon Distance Hypothesis Test in Python},
   author = {ALGES},
-  year = {2025},
-  url = {https://github.com/alges/multinull-jsd-test}
+  year = {2026},
+  url = {https://github.com/alges/multinull-jsd}
 }
 ```

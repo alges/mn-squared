@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.abspath(path=""))
 project: str = "multinull-jsd"
 author: str = "ALGES"
 copyright: str = f"{datetime.now().year}, {author}"  # noqa
-release: str = "0.1.0"
+release: str = "1.0.0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
