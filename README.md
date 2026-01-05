@@ -19,7 +19,7 @@ pip install multinull-jsd
 
 Python **≥ 3.10**, NumPy **≥ 1.24**.
 
-## Quickstart (API scaffold)
+## Quickstart
 
 ```python
 from multinull_jsd import MultiNullJSDTest
