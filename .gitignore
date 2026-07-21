@@ -5,6 +5,7 @@ dist
 .idea
 .venv*
 experiments/results
+experiments/genomics/data
 sandbox
 
 **/.hypothesis

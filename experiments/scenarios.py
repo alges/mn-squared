@@ -211,6 +211,14 @@ class ExperimentScenario:
         are simulated per point.
     ignore_baselines:
         If True, only our method is run.
+    methods:
+        Optional explicit list of baseline method names (canonical labels, as used as keys in
+        `registry.BASELINE_SINGLE` or as entries of `registry.EXACT_METHODS`) to evaluate for this
+        scenario, in addition to `METHOD_JSD`. If None (the default), every baseline registered in
+        `registry.BASELINE_SINGLE` and `registry.EXACT_METHODS` is evaluated, preserving prior
+        behaviour. Use this to restrict a scenario to a specific subset of baselines (e.g., to match
+        a specific published comparison) without affecting other scenarios or globally registered
+        methods.
     mjsd_targets:
         1-D array of target mJSd levels used to construct alternatives.
     alt_num_candidate_samples:
@@ -226,6 +234,7 @@ class ExperimentScenario:
     method_plans: dict[str, SamplingPlan] = field(default_factory=dict)
 
     ignore_baselines: bool = False
+    methods: list[str] | None = None
 
     # Alternative selection
     mjsd_targets: FloatArray = None

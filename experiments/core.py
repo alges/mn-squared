@@ -769,8 +769,11 @@ def run_experiment_core_for_scenario(
     methods: list[str] = [METHOD_JSD]
 
     if include_baselines and not scenario.ignore_baselines:
-        methods += list(BASELINE_SINGLE.keys())
-        methods += EXACT_METHODS
+        if scenario.methods is not None:
+            methods += list(scenario.methods)
+        else:
+            methods += list(BASELINE_SINGLE.keys())
+            methods += EXACT_METHODS
 
     # 4) Determine per-method n_grids and union them
     if scenario.method_plans is None:
@@ -1354,7 +1357,8 @@ def run_experiment_core_for_scenario(
     df["n_jobs"] = int(N_JOBS)
     df["n_chunks"] = int(N_CHUNKS)
     df["parallel_backend"] = str(PARALLEL_BACKEND)
-    df["show_progress"] = bool(SHOW_PROGRESS)
+    # Nullable ("boolean") dtype, since MNSquared rows below are set to pd.NA rather than True/False.
+    df["show_progress"] = pd.array(data=[bool(SHOW_PROGRESS)] * len(df), dtype="boolean")
     df["mp_start_method"] = "spawn"  # you hard-code this in the calls
 
     baseline_mask: pd.Series = df["method"].ne(other=METHOD_JSD)

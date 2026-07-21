@@ -12,6 +12,7 @@ import functools
 from baselines.power_divergence import chisquare_gof_pvalue, gtest_gof_pvalue
 from baselines.exact_multinom_r import exact_multinom_pvalues
 from baselines.kernel_mmd import mmd_gaussian_pvalue, mmd_laplacian_pvalue
+from baselines.kernel_mmd_mc import mmd_gaussian_mc_pvalue
 
 from settings import M_MONTE_CARLO, FloatArray, IntArray
 
@@ -24,6 +25,8 @@ BASELINE_SINGLE: dict[str, Callable[[IntArray, FloatArray], float]] = {
     "G-test-LLR+Holm": gtest_gof_pvalue,
     "MMD-Gaussian+Holm": functools.partial(mmd_gaussian_pvalue, reps=M_MONTE_CARLO),
     "MMD-Laplacian+Holm": functools.partial(mmd_laplacian_pvalue, reps=M_MONTE_CARLO),
+    # Monte Carlo-calibrated one-sample Gaussian-kernel test (see kernel_mmd_mc.py).
+    "MMD-Gaussian-MC+Holm": mmd_gaussian_mc_pvalue,
 }
 
 EXACT_PREFIX: str = "ExactMultinom"

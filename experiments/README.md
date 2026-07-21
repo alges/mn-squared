@@ -3,6 +3,62 @@
 This folder contains the **experiment harness** used to benchmark and validate the multi-null JSd hypothesis test
 implementation against multiple-testing baselines.
 
+## Reproducing the accompanying paper's experiments
+
+### Installation
+
+Install the package with the `exp` extra, which pulls in pandas, SciPy, `hyppo`, `tqdm`, and `rpy2`:
+
+```bash
+pip install -e ".[exp]"
+```
+
+`rpy2` additionally requires a working R installation with the `ExactMultinom` package if you want
+to run the `ExactMultinom-*` baseline; every other method (MNSquared, Chi2-Pearson+Holm,
+G-test-LLR+Holm, and both MMD-based baselines) has no such requirement.
+
+### Synthetic scenarios and runtime comparison
+
+`experiment_core.ipynb` builds four synthetic scenarios of increasing sparsity (balanced,
+unbalanced, border/extreme, and border/extreme with heterogeneous per-null significance levels),
+evaluates MNSquared against Chi2-Pearson+Holm, G-test-LLR+Holm, and the Monte Carlo-calibrated
+Gaussian-kernel baseline (`MMD-Gaussian-MC+Holm`, see `baselines/kernel_mmd_mc.py`) across a
+log-spaced grid of sample sizes, and reports the amortised per-decision runtime on the largest
+scenario. Run the notebook top to bottom; results and cached artefacts are written under
+`experiments/results/`.
+
+### Genomics experiments (codon-usage data)
+
+The `experiments/genomics/` package applies MNSquared to codon-usage histograms, using the
+genome-wide codon-usage profiles of five organisms (*E. coli*, *H. sapiens*, *S. cerevisiae*,
+*B. subtilis*, *D. melanogaster*) as null distributions. These profiles are public data from the
+Kazusa Codon Usage Tabulation database and are included directly in `genomics/cutg_data.py`.
+
+Experiments A-C only require this bundled data:
+
+```bash
+python -m experiments.genomics.exp_a_type_i        # Type-I error control (~10-20 min)
+python -m experiments.genomics.exp_b_alphabet      # Type-I error across alphabet sizes (~20-30 min)
+python -m experiments.genomics.exp_c_fwer_accuracy # FWER scaling and attribution accuracy (~20-30 min)
+```
+
+Experiment D evaluates attribution accuracy on real coding sequences from NCBI RefSeq. Since this
+downloads third-party data, it is **not** bundled with the repository; run the download step first:
+
+```bash
+# Edit NCBI_PARAMS["email"] in download_real_genes.py to your own address first
+# (required by the NCBI E-utilities usage policy).
+python -m experiments.genomics.download_real_genes  # ~5-15 min, requires network access
+python -m experiments.genomics.exp_d_real_cds        # ~10-30 min
+```
+
+The download step writes `experiments/genomics/data/real_genes.npz`, which is git-ignored and must
+be regenerated locally.
+
+Each genomics script writes its results as CSV files under `experiments/results/`.
+
+---
+
 The experiments are designed to be:
 
 - **Scenario-based**: each scenario specifies the number of null hypotheses $L$, the probability dimensionality $k$, 
